@@ -19,6 +19,15 @@ using namespace std;
 const unsigned int SCR_WIDTH = 1600;
 const unsigned int SCR_HEIGHT = 1200;
 
+glm::vec3 ball01(0.3f, 0.0f, -0.3f);
+glm::vec3 ball02(0.3f, 0.0f, 0.0f);
+glm::vec3 ball03(-0.3f, 0.0f, 0.0f);
+glm::vec3 ball04(0.0f, 0.0f, 0.3f);
+glm::vec3 ball05(0.0f, 0.0f, -0.3f);
+glm::vec3 ball06(-0.3f, 0.0f, 0.3f);
+glm::vec3 ball07(0.3f, 0.0f, 0.3f);
+glm::vec3 ball08(-0.3f, 0.0f, -0.3f);
+
 // Camera settings
 //This is the starting position of the of the camera 
 Camera camera(glm::vec3(0.0f, 1.0f, 1.5f));
@@ -90,7 +99,15 @@ int main()
     box.loadBox("Box.txt");
 
     //Balls
-    Ball ball1(0.1f, 30, 30);
+    Ball ball1(0.05f, 30, 30);
+    Ball ball2(0.05f, 30, 30);
+    Ball ball3(0.05f, 30, 30);
+    Ball ball4(0.05f, 30, 30);
+    Ball ball5(0.05f, 30, 30);
+    Ball ball6(0.05f, 30, 30);
+    Ball ball7(0.05f, 30, 30);
+    Ball ball8(0.05f, 30, 30);
+
 
     // render loop
     // -----------
@@ -132,7 +149,54 @@ int main()
         glDrawElements(GL_TRIANGLES, box.getIndexCount(), GL_UNSIGNED_INT, 0);
         glBindVertexArray(0);
 
+        //Ball1
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, ball01);
+        ourShader.setMat4("model", model);
         ball1.DrawBall();
+
+        //Ball2
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, ball02);
+        ourShader.setMat4("model", model);
+        ball2.DrawBall();
+
+        //Ball3
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, ball03);
+        ourShader.setMat4("model", model);
+        ball3.DrawBall();
+
+        //Ball4
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, ball04);
+        ourShader.setMat4("model", model);
+        ball4.DrawBall();
+
+        //Ball5
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, ball05);
+        ourShader.setMat4("model", model);
+        ball5.DrawBall();
+
+        //Ball6
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, ball06);
+        ourShader.setMat4("model", model);
+        ball6.DrawBall();
+
+        //Ball7
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, ball07);
+        ourShader.setMat4("model", model);
+        ball7.DrawBall();
+
+        //Ball8
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, ball08);
+        ourShader.setMat4("model", model);
+        ball8.DrawBall();
+
         /* glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);*/
 
          // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)

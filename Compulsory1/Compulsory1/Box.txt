@@ -1,8 +1,8 @@
 
--0.5 -0.5 -0.5 0.0 0.0 0.0 // Bottom-left-back black
- 0.5 -0.5 -0.5 0.0 0.0 0.0 // Bottom-right-back black
- 0.5 -0.5  0.5 0.0 0.0 0.0 // Bottom-right-front black
--0.5 -0.5  0.5 0.0 0.0 0.0 // Bottom-left-front black
+-0.5 -0.5 -0.5 1.0 1.0 1.0 // Bottom-left-back black
+ 0.5 -0.5 -0.5 1.0 1.0 1.0 // Bottom-right-back black
+ 0.5 -0.5  0.5 1.0 1.0 1.0 // Bottom-right-front black
+-0.5 -0.5  0.5 1.0 1.0 1.0 // Bottom-left-front black
 
 -0.5  0.5 -0.5 1.0 1.0 1.0 // Top-left-back white
  0.5  0.5 -0.5 1.0 1.0 1.0 // Top-right-back white
