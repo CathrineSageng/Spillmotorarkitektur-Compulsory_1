@@ -12,6 +12,7 @@
 #include "ShaderFileLoader.h"
 #include "Camera.h"
 #include "Box.h"
+#include "Ball.h"
 using namespace std;
 
 // settings
@@ -84,10 +85,12 @@ int main()
     // Enable depth testing
     glEnable(GL_DEPTH_TEST);
 
-
+    //The Box
     Box box;
     box.loadBox("Box.txt");
 
+    //Balls
+    Ball ball1(0.1f, 30, 30);
 
     // render loop
     // -----------
@@ -128,6 +131,8 @@ int main()
         glBindVertexArray(box.getVAO());
         glDrawElements(GL_TRIANGLES, box.getIndexCount(), GL_UNSIGNED_INT, 0);
         glBindVertexArray(0);
+
+        ball1.DrawBall();
         /* glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);*/
 
          // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
