@@ -10,13 +10,16 @@
 class Ball
 {
 public:
-    Ball(float radius, int sectors, int stacks);
+    Ball(float radius, int sectors, int stacks, glm::vec3 color);
     void DrawBall();
 
 private:
     GLuint VAO, VBO, EBO;
     std::vector<GLfloat> vertices;
     std::vector<GLuint> indices;
+    std::vector<GLfloat> colors;
+
 };
 
 #endif
+

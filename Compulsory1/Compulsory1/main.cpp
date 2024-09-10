@@ -1,26 +1,33 @@
 #include<iostream>
 #include "glm/mat4x3.hpp"
-
 #include<glad/glad.h>
 #include<GLFW/glfw3.h>
 #include<glm/glm.hpp>
 #include<glm/gtc/matrix_transform.hpp>
 #include<glm/gtc/type_ptr.hpp>
 #include<vector>
-
 #include "Shader.h"
 #include "ShaderFileLoader.h"
 #include "Camera.h"
 #include "Box.h"
 #include "Ball.h"
+#include "Octree.h"
+
 using namespace std;
 
 // settings
 const unsigned int SCR_WIDTH = 1600;
 const unsigned int SCR_HEIGHT = 1200;
+float boxMin = -0.45f;
+float boxMax = 0.45f;
+float ballSpeed = 0.5f;
 
-glm::vec3 ball01(0.3f, -0.19f, 0.3f);
-glm::vec3 ball02(0.1f, -0.19f, 0.3f);
+bool ballsMoving = false;
+
+float ballRadius = 0.05f;
+
+glm::vec3 ball1(0.3f, -0.19f, 0.3f);
+glm::vec3 ball2(0.1f, -0.19f, 0.3f);
 glm::vec3 ball03(-0.1f, -0.19f, 0.3f);
 glm::vec3 ball04(-0.3f, -0.19f, 0.3f);
 glm::vec3 ball05(0.3f, -0.19f, 0.1f);
@@ -35,6 +42,11 @@ glm::vec3 ball013(0.3f, -0.19f, -0.3f);
 glm::vec3 ball014(0.1f, -0.19f, -0.3f);
 glm::vec3 ball015(-0.1f, -0.19f, -0.3f);
 glm::vec3 ball016(-0.3f, -0.19f, -0.3f);
+
+std::vector<glm::vec3> ballPositions = {
+    ball1, ball2, ball03, ball04, ball05, ball06, ball07, ball08,
+    ball09, ball010, ball011, ball012, ball013, ball014, ball015, ball016
+};
 
 glm::vec3 ballVelocity01(0.5f, 0.0f, 0.5f);
 glm::vec3 ballVelocity02(-0.5f, 0.0f, 0.4f);
@@ -52,67 +64,27 @@ glm::vec3 ballVelocity13(0.4f, 0.0f, -0.3f);
 glm::vec3 ballVelocity14(-0.2f, 0.0f, 0.3f);
 glm::vec3 ballVelocity15(0.4f, 0.0f, -0.3f);
 glm::vec3 ballVelocity16(-0.4f, 0.0f, 0.3f);
-// Add velocities for other balls as needed
 
-float boxMin = -0.46f;
-float boxMax = 0.46f;
-
-bool ballsMoving = false;
-
-std::vector<glm::vec3> ballPositions = {
-    ball01, ball02, ball03, ball04, ball05, ball06, ball07, ball08,
-    ball09, ball010, ball011, ball012, ball013, ball014, ball015, ball016
+std::vector<glm::vec3> ballVelocities = {
+    ballVelocity01, ballVelocity02, ballVelocity03, ballVelocity04, ballVelocity05,
+    ballVelocity06, ballVelocity07, ballVelocity08,
+    ballVelocity09, ballVelocity10, ballVelocity11, ballVelocity12, ballVelocity13,
+    ballVelocity14, ballVelocity15, ballVelocity16
 };
 
-std::vector<glm::vec3> ballVelocities(ballPositions.size(), glm::vec3(0.0f));  // Start with zero velocities
-
-float ballRadius = 0.05f;  // Assuming all balls have the same radius
-
-bool checkCollision(glm::vec3 posA, glm::vec3 posB, float radiusA, float radiusB)
-{
-    float distance = glm::distance(posA, posB);
-    return distance < (radiusA + radiusB);
-}
-
-void resolveCollision(glm::vec3& posA, glm::vec3& velA, glm::vec3& posB, glm::vec3& velB, float radius, float massA, float massB)
-{
-    glm::vec3 collisionNormal = glm::normalize(posB - posA);
-    glm::vec3 relativeVelocity = velA - velB;
-
-    // Calculate velocity along the normal
-    float velocityAlongNormal = glm::dot(relativeVelocity, collisionNormal);
-
-    // Do not resolve if velocities are separating
-    if (velocityAlongNormal > 0)
-        return;
-
-    // Calculate restitution (elastic collision)
-    float e = 1.0f;  // Elastic collision (no energy loss)
-
-    // Impulse scalar
-    float j = -(1 + e) * velocityAlongNormal / (1 / massA + 1 / massB);
-
-    // Apply impulse
-    glm::vec3 impulse = j * collisionNormal;
-    velA -= impulse / massA;
-    velB += impulse / massB;
-}
-
-void updateBallCollisions(std::vector<glm::vec3>& ballPositions, std::vector<glm::vec3>& ballVelocities, float radius)
-{
-    // Loop over all pairs of balls to check for collisions
-    for (int i = 0; i < ballPositions.size(); ++i)
-    {
-        for (int j = i + 1; j < ballPositions.size(); ++j)
-        {
-            if (checkCollision(ballPositions[i], ballPositions[j], radius, radius))
-            {
-                // If a collision is detected, resolve it
-                resolveCollision(ballPositions[i], ballVelocities[i], ballPositions[j], ballVelocities[j], radius, 1.0f, 1.0f); // Assume equal mass (1.0f)
-            }
-        }
-    }
-}
+std::vector<glm::vec3> ballColors = {
+    glm::vec3(1.0f, 0.0f, 0.0f), // Red
+    glm::vec3(0.0f, 1.0f, 0.0f), // Green
+    glm::vec3(0.0f, 0.0f, 1.0f), // Blue
+    glm::vec3(1.0f, 1.0f, 0.0f), // Yellow
+    glm::vec3(1.0f, 0.0f, 1.0f), // Magenta
+    glm::vec3(0.0f, 1.0f, 1.0f), // Cyan
+    glm::vec3(0.5f, 0.5f, 0.5f), // Grey
+    glm::vec3(1.0f, 0.5f, 0.0f), // Orange
+    glm::vec3(0.5f, 0.0f, 0.5f), // Purple
+    glm::vec3(0.0f, 0.5f, 0.5f),  // Teal
+    glm::vec3(0.0f, 0.0f, 0.0f)  // Black
+};
 
 // Camera settings
 //This is the starting position of the of the camera 
@@ -132,12 +104,11 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
-
-
+bool checkCollision(glm::vec3 posA, glm::vec3 posB, float radiusA, float radiusB);
+void resolveCollision(glm::vec3& p1, glm::vec3& v1, glm::vec3& p2, glm::vec3& v2, float radius);
 
 std::string vfs = ShaderLoader::LoadShaderFromFile("vs.vs");
 std::string fs = ShaderLoader::LoadShaderFromFile("fs.fs");
-
 
 int main()
 {
@@ -184,234 +155,99 @@ int main()
     Box box;
     box.loadBox("Box.txt");
 
-    //Balls
-    Ball ball1(0.05f, 30, 30);
-    Ball ball2(0.05f, 30, 30);
-    Ball ball3(0.05f, 30, 30);
-    Ball ball4(0.05f, 30, 30);
-    Ball ball5(0.05f, 30, 30);
-    Ball ball6(0.05f, 30, 30);
-    Ball ball7(0.05f, 30, 30);
-    Ball ball8(0.05f, 30, 30);
-    Ball ball9(0.05f, 30, 30);
-    Ball ball10(0.05f, 30, 30);
-    Ball ball11(0.05f, 30, 30);
-    Ball ball12(0.05f, 30, 30);
-    Ball ball13(0.05f, 30, 30);
-    Ball ball14(0.05f, 30, 30);
-    Ball ball15(0.05f, 30, 30);
-    Ball ball16(0.05f, 30, 30);
+    Ball ball(0.05f, 30, 30, glm::vec3(1.0f, 0.41f, 0.71f));  // Hot Pink
 
-while (!glfwWindowShouldClose(window))
-{
-    // Time calculation for movement
-    float currentFrame = static_cast<float>(glfwGetTime());
-    deltaTime = currentFrame - lastFrame;
-    lastFrame = currentFrame;
-
-    processInput(window);
-
-    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    ourShader.use();
-
-    glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-    glm::mat4 view = camera.GetViewMatrix();
-    ourShader.setMat4("projection", projection);
-    ourShader.setMat4("view", view);
-
-    // World transformation for the box
-    glm::mat4 model = glm::mat4(1.0f);
-    model = glm::translate(model, glm::vec3(0.0f, 0.2f, 0.0f)); // Translate the box upwards
-    ourShader.setMat4("model", model);
-
-    glBindVertexArray(box.getVAO());
-    glDrawElements(GL_TRIANGLES, box.getIndexCount(), GL_UNSIGNED_INT, 0);
-    glBindVertexArray(0);
-
-    if (ballsMoving)
+    std::vector<Ball> balls;
+    for (int i = 0; i < ballPositions.size(); ++i)
     {
-        // Update ball positions with velocities
-        for (int i = 0; i < ballPositions.size(); ++i)
-        {
-            ballPositions[i] += ballVelocities[i] * deltaTime;
-        }
-
-        // Check for ball-ball collisions and resolve
-        updateBallCollisions(ballPositions, ballVelocities, ballRadius);
-
-        // Ball Movement
-        ball01 += ballVelocity01 * deltaTime;
-        ball02 += ballVelocity02 * deltaTime;
-        ball03 += ballVelocity03 * deltaTime;
-        ball04 += ballVelocity04 * deltaTime;
-        ball05 += ballVelocity05 * deltaTime;
-        ball06 += ballVelocity06 * deltaTime;
-        ball07 += ballVelocity07 * deltaTime;
-        ball08 += ballVelocity08 * deltaTime;
-        ball09 += ballVelocity09 * deltaTime;
-        ball010 += ballVelocity10 * deltaTime;
-        ball011 += ballVelocity11 * deltaTime;
-        ball012 += ballVelocity12 * deltaTime;
-        ball013 += ballVelocity13 * deltaTime;
-        ball014 += ballVelocity14 * deltaTime;
-        ball015 += ballVelocity15 * deltaTime;
-        ball016 += ballVelocity16 * deltaTime;
-
-        // Update other ball positions based on velocity
-
-        // Ball Boundary Checking and Reversing Velocity
-        if (ball01.x <= boxMin || ball01.x >= boxMax) ballVelocity01.x = -ballVelocity01.x;
-        if (ball01.z <= boxMin || ball01.z >= boxMax) ballVelocity01.z = -ballVelocity01.z;
-
-        if (ball02.x <= boxMin || ball02.x >= boxMax) ballVelocity02.x = -ballVelocity02.x;
-        if (ball02.z <= boxMin || ball02.z >= boxMax) ballVelocity02.z = -ballVelocity02.z;
-
-        if (ball03.x <= boxMin || ball03.x >= boxMax) ballVelocity03.x = -ballVelocity03.x;
-        if (ball03.z <= boxMin || ball03.z >= boxMax) ballVelocity03.z = -ballVelocity03.z;
-
-        if (ball04.x <= boxMin || ball04.x >= boxMax) ballVelocity04.x = -ballVelocity04.x;
-        if (ball04.z <= boxMin || ball04.z >= boxMax) ballVelocity04.z = -ballVelocity04.z;
-
-        if (ball05.x <= boxMin || ball05.x >= boxMax) ballVelocity05.x = -ballVelocity05.x;
-        if (ball05.z <= boxMin || ball05.z >= boxMax) ballVelocity05.z = -ballVelocity05.z;
-
-        if (ball06.x <= boxMin || ball06.x >= boxMax) ballVelocity06.x = -ballVelocity06.x;
-        if (ball06.z <= boxMin || ball06.z >= boxMax) ballVelocity06.z = -ballVelocity06.z;
-
-        if (ball07.x <= boxMin || ball07.x >= boxMax) ballVelocity07.x = -ballVelocity07.x;
-        if (ball07.z <= boxMin || ball07.z >= boxMax) ballVelocity07.z = -ballVelocity07.z;
-
-        if (ball08.x <= boxMin || ball08.x >= boxMax) ballVelocity08.x = -ballVelocity08.x;
-        if (ball08.z <= boxMin || ball08.z >= boxMax) ballVelocity08.z = -ballVelocity08.z;
-
-        if (ball09.x <= boxMin || ball09.x >= boxMax) ballVelocity09.x = -ballVelocity09.x;
-        if (ball09.z <= boxMin || ball09.z >= boxMax) ballVelocity09.z = -ballVelocity09.z;
-
-        if (ball010.x <= boxMin || ball010.x >= boxMax) ballVelocity10.x = -ballVelocity10.x;
-        if (ball010.z <= boxMin || ball010.z >= boxMax) ballVelocity10.z = -ballVelocity10.z;
-
-        if (ball011.x <= boxMin || ball011.x >= boxMax) ballVelocity11.x = -ballVelocity11.x;
-        if (ball011.z <= boxMin || ball011.z >= boxMax) ballVelocity11.z = -ballVelocity11.z;
-
-        if (ball012.x <= boxMin || ball012.x >= boxMax) ballVelocity12.x = -ballVelocity12.x;
-        if (ball012.z <= boxMin || ball012.z >= boxMax) ballVelocity12.z = -ballVelocity12.z;
-
-        if (ball013.x <= boxMin || ball013.x >= boxMax) ballVelocity13.x = -ballVelocity13.x;
-        if (ball013.z <= boxMin || ball013.z >= boxMax) ballVelocity13.z = -ballVelocity13.z;
-
-        if (ball014.x <= boxMin || ball014.x >= boxMax) ballVelocity14.x = -ballVelocity14.x;
-        if (ball014.z <= boxMin || ball014.z >= boxMax) ballVelocity14.z = -ballVelocity14.z;
-
-        if (ball015.x <= boxMin || ball015.x >= boxMax) ballVelocity15.x = -ballVelocity15.x;
-        if (ball015.z <= boxMin || ball015.z >= boxMax) ballVelocity15.z = -ballVelocity15.z;
-
-        if (ball016.x <= boxMin || ball016.x >= boxMax) ballVelocity16.x = -ballVelocity16.x;
-        if (ball016.z <= boxMin || ball016.z >= boxMax) ballVelocity16.z = -ballVelocity16.z;
-
+        glm::vec3 ballColor = ballColors[i % ballColors.size()]; // Assign a color from the color list
+        balls.push_back(Ball(ballRadius, 30, 30, ballColor));    // Create the ball with the color
     }
 
-    // Ball1
-    model = glm::mat4(1.0f);
-    model = glm::translate(model, ball01);
-    ourShader.setMat4("model", model);
-    ball1.DrawBall();
+    while (!glfwWindowShouldClose(window))
+    {
+        // Time calculation for movement
+        float currentFrame = static_cast<float>(glfwGetTime());
+        deltaTime = currentFrame - lastFrame;
+        lastFrame = currentFrame;
 
-    // Ball2
-    model = glm::mat4(1.0f);
-    model = glm::translate(model, ball02);
-    ourShader.setMat4("model", model);
-    ball2.DrawBall();
+        processInput(window);
 
-    // Ball3
-    model = glm::mat4(1.0f);
-    model = glm::translate(model, ball03);
-    ourShader.setMat4("model", model);
-    ball3.DrawBall();
+        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    //Ball4
-    model = glm::mat4(1.0f);
-    model = glm::translate(model, ball04);
-    ourShader.setMat4("model", model);
-    ball4.DrawBall();
+        ourShader.use();
 
-    //Ball5
-    model = glm::mat4(1.0f);
-    model = glm::translate(model, ball05);
-    ourShader.setMat4("model", model);
-    ball5.DrawBall();
+        glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+        glm::mat4 view = camera.GetViewMatrix();
+        ourShader.setMat4("projection", projection);
+        ourShader.setMat4("view", view);
 
-    //Ball6
-    model = glm::mat4(1.0f);
-    model = glm::translate(model, ball06);
-    ourShader.setMat4("model", model);
-    ball6.DrawBall();
+        // World transformation for the box
+        glm::mat4 model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(0.0f, 0.2f, 0.0f)); // Translate the box upwards
+        ourShader.setMat4("model", model);
 
-    //Ball7
-    model = glm::mat4(1.0f);
-    model = glm::translate(model, ball07);
-    ourShader.setMat4("model", model);
-    ball7.DrawBall();
+        glBindVertexArray(box.getVAO());
+        glDrawElements(GL_TRIANGLES, box.getIndexCount(), GL_UNSIGNED_INT, 0);
+        glBindVertexArray(0);
 
-    //Ball8
-    model = glm::mat4(1.0f);
-    model = glm::translate(model, ball08);
-    ourShader.setMat4("model", model);
-    ball8.DrawBall();
+        // If the balls are moving, update their positions and detect collisions
+        if (ballsMoving)
+        {
+            // Step 1: Create the octree to manage the balls within the box boundaries
+            Octree octree(glm::vec3(boxMin, boxMin, boxMin), glm::vec3(boxMax, boxMax, boxMax), 0, 4, 4);
 
-    //Ball9
-    model = glm::mat4(1.0f);
-    model = glm::translate(model, ball09);
-    ourShader.setMat4("model", model);
-    ball9.DrawBall();
+            // Step 2: Update ball positions and insert each ball into the octree
+            for (int i = 0; i < ballPositions.size(); ++i)
+            {
+                // Update position with current velocity
+                ballPositions[i] += ballVelocities[i] * deltaTime;
 
-    //Ball10
-    model = glm::mat4(1.0f);
-    model = glm::translate(model, ball010);
-    ourShader.setMat4("model", model);
-    ball10.DrawBall();
+                // Ball Boundary Checking and Reversing Velocity
+                if (ballPositions[i].x - ballRadius <= boxMin || ballPositions[i].x + ballRadius >= boxMax) {
+                    ballVelocities[i].x = -ballVelocities[i].x;
+                    ballPositions[i].x = glm::clamp(ballPositions[i].x, boxMin + ballRadius, boxMax - ballRadius);
+                }
+                if (ballPositions[i].z - ballRadius <= boxMin || ballPositions[i].z + ballRadius >= boxMax) {
+                    ballVelocities[i].z = -ballVelocities[i].z;
+                    ballPositions[i].z = glm::clamp(ballPositions[i].z, boxMin + ballRadius, boxMax - ballRadius);
+                }
 
-    //Ball11
-    model = glm::mat4(1.0f);
-    model = glm::translate(model, ball011);
-    ourShader.setMat4("model", model);
-    ball11.DrawBall();
+                // Normalize the velocity and maintain constant speed
+                ballVelocities[i] = glm::normalize(ballVelocities[i]) * ballSpeed;
 
-    //Ball12
-    model = glm::mat4(1.0f);
-    model = glm::translate(model, ball012);
-    ourShader.setMat4("model", model);
-    ball12.DrawBall();
+                // Insert the ball into the octree
+                octree.insert(i, ballPositions, ballRadius);
+            }
 
-    //Ball13
-    model = glm::mat4(1.0f);
-    model = glm::translate(model, ball013);
-    ourShader.setMat4("model", model);
-    ball13.DrawBall();
+            // Step 3: Get all potential collision pairs from the octree
+            std::vector<std::pair<int, int>> potentialCollisions;
+            octree.getPotentialCollisions(potentialCollisions, ballPositions, ballRadius);
 
-    //Ball14
-    model = glm::mat4(1.0f);
-    model = glm::translate(model, ball014);
-    ourShader.setMat4("model", model);
-    ball14.DrawBall();
+            // Step 4: Check for actual collisions between the potential pairs and resolve them
+            for (const auto& pair : potentialCollisions) {
+                int i = pair.first;
+                int j = pair.second;
 
-    //Ball15
-    model = glm::mat4(1.0f);
-    model = glm::translate(model, ball015);
-    ourShader.setMat4("model", model);
-    ball15.DrawBall();
+                if (checkCollision(ballPositions[i], ballPositions[j], ballRadius, ballRadius)) {
+                    resolveCollision(ballPositions[i], ballVelocities[i], ballPositions[j], ballVelocities[j], ballRadius);
+                }
+            }
+        }
 
-    //Ball16
-    model = glm::mat4(1.0f);
-    model = glm::translate(model, ball016);
-    ourShader.setMat4("model", model);
-    ball16.DrawBall();
+        // Render all balls
+        for (int i = 0; i < ballPositions.size(); ++i)
+        {
+            model = glm::mat4(1.0f);
+            model = glm::translate(model, ballPositions[i]);
+            ourShader.setMat4("model", model);
+            balls[i].DrawBall();
+        }
 
-
-    glfwSwapBuffers(window);
-    glfwPollEvents();
-}
+        glfwSwapBuffers(window);
+        glfwPollEvents();
+    }
     // glfw: terminate, clearing all previously allocated GLFW resources.
     // ------------------------------------------------------------------
     glfwTerminate();
@@ -476,4 +312,51 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
     camera.ProcessMouseScroll(static_cast<float>(yoffset));
 }
+
+bool checkCollision(glm::vec3 posA, glm::vec3 posB, float radiusA, float radiusB)
+{
+    float distance = glm::distance(posA, posB);
+    return distance < (radiusA + radiusB);
+}
+
+void resolveCollision(glm::vec3& p1, glm::vec3& v1, glm::vec3& p2, glm::vec3& v2, float radius)
+{
+    // Mass of the balls (assuming equal mass)
+    float m1 = 1.0f;
+    float m2 = 1.0f;
+
+    // Normal vector
+    glm::vec3 normal = p1 - p2;
+    float distance = glm::length(normal);
+    normal = glm::normalize(normal);
+
+    // Ensure there's no overlap
+    float overlap = radius * 2 - distance;
+    if (overlap > 0)
+    {
+        glm::vec3 correction = normal * (overlap / 2.0f);
+        p1 += correction;
+        p2 -= correction;
+    }
+
+    // Relative velocity
+    glm::vec3 relativeVelocity = v1 - v2;
+
+    // Calculate velocity along the normal
+    float velocityAlongNormal = glm::dot(relativeVelocity, normal);
+
+    // If the balls are moving apart, skip
+    if (velocityAlongNormal > 0)
+        return;
+
+    // Collision resolution using impulse
+    float e = 1.0f;  // Coefficient of restitution (elastic collision)
+    float j = -(1 + e) * velocityAlongNormal / (1 / m1 + 1 / m2);
+
+    // Apply the impulse to the velocities
+    glm::vec3 impulse = j * normal;
+    v1 += impulse / m1;
+    v2 -= impulse / m2;
+}
+
 

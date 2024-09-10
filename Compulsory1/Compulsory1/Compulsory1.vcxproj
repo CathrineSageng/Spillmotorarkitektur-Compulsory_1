@@ -138,6 +138,7 @@
     <ClCompile Include="dependencies\include\glm\detail\glm.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Octree.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="ShaderFileLoader.cpp" />
   </ItemGroup>
@@ -432,6 +433,7 @@
     <ClInclude Include="dependencies\include\glm\vector_relational.hpp" />
     <ClInclude Include="dependencies\include\KHR\khrplatform.h" />
     <ClInclude Include="dependencies\include\stb\stb_image.h" />
+    <ClInclude Include="Octree.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="ShaderFileLoader.h" />
   </ItemGroup>

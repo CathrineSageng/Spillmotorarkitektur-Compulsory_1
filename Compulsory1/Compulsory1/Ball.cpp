@@ -5,7 +5,7 @@
 #include "Ball.h"
 
 
-Ball::Ball(float radius, int sectors, int stacks)
+Ball::Ball(float radius, int sectors, int stacks, glm::vec3 color)
 {
     VAO = 0;
     VBO = 0;
@@ -25,6 +25,11 @@ Ball::Ball(float radius, int sectors, int stacks)
             vertices.push_back(x);
             vertices.push_back(y);
             vertices.push_back(z);
+
+            // Assign the same color to every vertex of this ball
+            colors.push_back(color.r);
+            colors.push_back(color.g);
+            colors.push_back(color.b);
         }
     }
 
@@ -47,6 +52,7 @@ Ball::Ball(float radius, int sectors, int stacks)
         }
     }
 
+    // Create VAO, VBO, EBO for vertices and colors
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
     glGenBuffers(1, &EBO);
@@ -54,13 +60,20 @@ Ball::Ball(float radius, int sectors, int stacks)
     glBindVertexArray(VAO);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(GLfloat), vertices.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(GLfloat) + colors.size() * sizeof(GLfloat), nullptr, GL_STATIC_DRAW);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(GLfloat), vertices.data());
+    glBufferSubData(GL_ARRAY_BUFFER, vertices.size() * sizeof(GLfloat), colors.size() * sizeof(GLfloat), colors.data());
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint), indices.data(), GL_STATIC_DRAW);
 
+    // Position attribute
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
     glEnableVertexAttribArray(0);
+
+    // Color attribute
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)(vertices.size() * sizeof(GLfloat)));
+    glEnableVertexAttribArray(1);
 
     glBindVertexArray(0);
 }
