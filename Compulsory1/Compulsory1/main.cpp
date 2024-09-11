@@ -155,9 +155,7 @@ int main()
     Box box;
     box.loadBox("Box.txt");
 
-    Ball ball(0.05f, 30, 30, glm::vec3(1.0f, 0.41f, 0.71f));  // Hot Pink
-
-    std::vector<Ball> balls;
+    vector<Ball> balls;
     for (int i = 0; i < ballPositions.size(); ++i)
     {
         glm::vec3 ballColor = ballColors[i % ballColors.size()]; // Assign a color from the color list
