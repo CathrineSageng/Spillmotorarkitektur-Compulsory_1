@@ -36,11 +36,14 @@ void Box::loadBox(const char* filename)
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, groundIndices.size() * sizeof(GLuint), groundIndices.data(), GL_STATIC_DRAW);
 
     // Position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)0);
     glEnableVertexAttribArray(0);
     // Color attribute
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
     glEnableVertexAttribArray(1);
+
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+    glEnableVertexAttribArray(2);
 
     indexCount = groundIndices.size();
 
@@ -70,14 +73,16 @@ void Box::readDataFromFile(const char* filename, vector<GLfloat>& vertices, vect
 
         std::istringstream iss(line);
         if (readingVertices) {
-            GLfloat x, y, z, r, g, b;
-            iss >> x >> y >> z >> r >> g >> b;
+            GLfloat x, y, z, r, g, b, u, v;
+            iss >> x >> y >> z >> r >> g >> b >> u >> v;
             vertices.push_back(x);
             vertices.push_back(y);
             vertices.push_back(z);
             vertices.push_back(r);
             vertices.push_back(g);
             vertices.push_back(b);
+            vertices.push_back(u);
+            vertices.push_back(v);
         }
         else {
             GLuint i1, i2, i3;

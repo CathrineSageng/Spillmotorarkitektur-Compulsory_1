@@ -1332,6 +1332,8 @@
     </None>
     <None Include="vs.vs" />
     <None Include="fs.fs" />
+    <None Include="Texture.vs" />
+    <None Include="Texture.fs" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="dependencies\lib\glfw3.lib" />
@@ -1339,5 +1341,19 @@
   <ItemGroup>
     <Text Include="dependencies\include\glm\CMakeLists.txt" />
     <Text Include="Box.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Textures\ball.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Textures\ball2.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Textures\box.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Textures\box1.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

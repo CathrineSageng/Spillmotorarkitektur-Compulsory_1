@@ -575,6 +575,8 @@
     <None Include="dependencies\include\glm\gtx\vector_query.inl" />
     <None Include="dependencies\include\glm\gtx\wrap.inl" />
     <None Include="fs.fs" />
+    <None Include="Texture.fs" />
+    <None Include="Texture.vs" />
     <None Include="vs.vs" />
   </ItemGroup>
   <ItemGroup>
@@ -583,6 +585,12 @@
   <ItemGroup>
     <Text Include="Box.txt" />
     <Text Include="dependencies\include\glm\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Textures\ball.jpg" />
+    <Image Include="Textures\ball2.jpg" />
+    <Image Include="Textures\box.jpg" />
+    <Image Include="Textures\box1.jpg" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

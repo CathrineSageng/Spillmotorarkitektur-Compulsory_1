@@ -1,35 +1,34 @@
 
--0.5 -0.5 -0.5 1.0 1.0 1.0 // Bottom-left-back black
- 0.5 -0.5 -0.5 1.0 1.0 1.0 // Bottom-right-back black
- 0.5 -0.5  0.5 1.0 1.0 1.0 // Bottom-right-front black
--0.5 -0.5  0.5 1.0 1.0 1.0 // Bottom-left-front black
-
--0.5  0.5 -0.5 1.0 1.0 1.0 // Top-left-back white
- 0.5  0.5 -0.5 1.0 1.0 1.0 // Top-right-back white
- 0.5  0.5  0.5 1.0 1.0 1.0 // Top-right-front white
--0.5  0.5  0.5 1.0 1.0 1.0 // Top-left-front white
-
--0.5 -0.5 0.5 0.0 1.0 0.0 // Bottom-left-front green
-0.5 -0.5 0.5 0.0 1.0 0.0 // Bottom-right-front green
-0.5 -0.35 0.5 0.0 1.0 0.0 // Top-right-front green
--0.5 -0.35 0.5 0.0 1.0 0.0 // Top-left-front green
-
--0.5 -0.5 -0.5 1.0 0.0 0.0 // Bottom-left-back red
- 0.5 -0.5 -0.5 1.0 0.0 0.0 // Bottom-right-back red
- 0.5 -0.35 -0.5 1.0 0.0 0.0 // Top-right-back red
--0.5 -0.35 -0.5 1.0 0.0 0.0 // Top-left-back red
+-0.5 -0.5 -0.5 1.0 1.0 1.0 0.0 0.0 // Bottom-left-back black
+ 0.5 -0.5 -0.5 1.0 1.0 1.0 1.0 0.0 // Bottom-right-back black
+ 0.5 -0.5  0.5 1.0 1.0 1.0 1.0 1.0 // Bottom-right-front black
+-0.5 -0.5  0.5 1.0 1.0 1.0 0.0 1.0 // Bottom-left-front black
 
 
--0.5 -0.5 -0.5 0.0 0.0 1.0 // Bottom-left-back blue
--0.5 -0.5 0.5 0.0 0.0 1.0 // Bottom-left-front blue
--0.5 -0.35 0.5 0.0 0.0 1.0 // Top-left-front blue
--0.5 -0.35 -0.5 0.0 0.0 1.0 // Top-left-back blue
+-0.5  0.5 -0.5 1.0 1.0 1.0 0.0 0.0 // Top-left-back white
+ 0.5  0.5 -0.5 1.0 1.0 1.0 1.0 0.0 // Top-right-back white
+ 0.5  0.5  0.5 1.0 1.0 1.0 1.0 1.0 // Top-right-front white
+-0.5  0.5  0.5 1.0 1.0 1.0 0.0 1.0 // Top-left-front white
 
+-0.5 -0.5  0.5 0.0 1.0 0.0 0.0 0.0 // Bottom-left-front green
+ 0.5 -0.5  0.5 0.0 1.0 0.0 1.0 0.0 // Bottom-right-front green
+ 0.5 -0.35 0.5 0.0 1.0 0.0 1.0 1.0 // Top-right-front green
+-0.5 -0.35 0.5 0.0 1.0 0.0 0.0 1.0 // Top-left-front green
 
- 0.5 -0.5 -0.5 1.0 1.0 0.0 // Bottom-right-back yellow
- 0.5 -0.5 0.5 1.0 1.0 0.0 // Bottom-right-front yellow
- 0.5 -0.35 0.5 1.0 1.0 0.0 // Top-right-front yellow
- 0.5 -0.35 -0.5 1.0 1.0 0.0 // Top-right-back yellow
+-0.5 -0.5 -0.5 1.0 0.0 0.0 0.0 0.0 // Bottom-left-back red
+ 0.5 -0.5 -0.5 1.0 0.0 0.0 1.0 0.0 // Bottom-right-back red
+ 0.5 -0.35 -0.5 1.0 0.0 0.0 1.0 1.0 // Top-right-back red
+-0.5 -0.35 -0.5 1.0 0.0 0.0 0.0 1.0 // Top-left-back red
+
+-0.5 -0.5 -0.5 0.0 0.0 1.0 0.0 0.0 // Bottom-left-back blue
+-0.5 -0.5  0.5 0.0 0.0 1.0 1.0 0.0 // Bottom-left-front blue
+-0.5 -0.35 0.5 0.0 0.0 1.0 1.0 1.0 // Top-left-front blue
+-0.5 -0.35 -0.5 0.0 0.0 1.0 0.0 1.0 // Top-left-back blue
+
+ 0.5 -0.5 -0.5 1.0 1.0 0.0 0.0 0.0 // Bottom-right-back yellow
+ 0.5 -0.5  0.5 1.0 1.0 0.0 1.0 0.0 // Bottom-right-front yellow
+ 0.5 -0.35 0.5 1.0 1.0 0.0 1.0 1.0 // Top-right-front yellow
+ 0.5 -0.35 -0.5 1.0 1.0 0.0 0.0 1.0 // Top-right-back yellow
 
 // Indices
 
